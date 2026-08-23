@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Gastos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand__badge">CG</div>
+        <div>
+          <p class="eyebrow">Proyecto personal</p>
+          <h1>Control de Gastos</h1>
+        </div>
+      </div>
+
+      <div class="user-selector">
+        <label class="user-selector__label">Usuario activo</label>
+        <select id="usuarioSelect" class="user-selector__select">
+          <option value="jefferson">Jefferson Rojas</option>
+          <option value="juliana">Juliana González</option>
+        </select>
+        <div class="user-selector__badge" id="usuarioBadge">
+          <span class="user-avatar user-avatar--jefferson">JR</span>
+          <span id="usuarioNombre">Jefferson Rojas</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a href="#dashboard" class="nav__link nav__link--active" data-nav="dashboard">Inicio</a>
+        <a href="#registro" class="nav__link" data-nav="registro">Registrar</a>
+        <a href="#historial" class="nav__link" data-nav="historial">Historial</a>
+        <a href="#pagos" class="nav__link" data-nav="pagos">Pagos</a>
+        <a href="#metas" class="nav__link" data-nav="metas">Metas y ahorros</a>
+        <a href="#tablas" class="nav__link" data-nav="tablas">Tablas Sheet</a>
+      </nav>
+
+      <section class="sidebar-card">
+        <p class="sidebar-card__title">Enfoque de la app</p>
+        <p class="sidebar-card__text">Registro rapido, control quincenal, metas de ahorro y acceso simple desde movil o web.</p>
+      </section>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">UX/UI en HTML + CSS</p>
+          <h2>Control de Gastos</h2>
+          <p id="connectionStatus" class="topbar__status">Modo demo local activo</p>
+        </div>
+        <div class="topbar__actions">
+          <div class="topbar-user" id="topbarUser">
+            <span class="user-avatar user-avatar--jefferson" id="topbarAvatar">JR</span>
+            <div>
+              <p class="topbar-user__name" id="topbarUserName">Jefferson Rojas</p>
+              <p class="topbar-user__role">Sesión activa</p>
+            </div>
+          </div>
+          <a href="#registro" class="primary-button">Nuevo gasto</a>
+        </div>
+      </header>
+
+      <section id="dashboard" class="section">
+        <div class="section__heading">
+          <div>
+            <p class="eyebrow">Resumen</p>
+            <h3>Dashboard del periodo actual</h3>
+          </div>
+          <span class="pill">Sincronizable con Google Sheets</span>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <p>Gasto de hoy</p>
+            <strong id="gastoHoy">$0</strong>
+            <span>Movimientos registrados hoy</span>
+          </article>
+          <article class="stat-card">
+            <p>Gasto quincenal</p>
+            <strong id="gastoQuincena">$0</strong>
+            <span>Control de la quincena actual</span>
+          </article>
+          <article class="stat-card">
+            <p>Gasto mensual</p>
+            <strong id="gastoMes">$0</strong>
+            <span>Total acumulado del mes</span>
+          </article>
+          <article class="stat-card stat-card--alert">
+            <p>Pagos pendientes</p>
+            <strong id="pagosPendientes">$0</strong>
+            <span>Obligaciones por cubrir</span>
+          </article>
+          <article class="stat-card" style="background: linear-gradient(180deg, #eef8ff 0%, #fff 100%);">
+            <p>Ahorro metas</p>
+            <strong id="dashboardAhorro">$0</strong>
+            <span>Acumulado en proyectos</span>
+          </article>
+          <article class="stat-card">
+            <p>Metas en curso</p>
+            <strong id="dashboardMetas">0</strong>
+            <span>Proyectos a futuro activos</span>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="panel panel--chart">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Categorias</p>
+                <h4>Distribucion de gastos</h4>
+              </div>
+            </div>
+            <div id="categoriaChart" class="chart-list"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Ultimos movimientos</p>
+                <h4>Actividad reciente</h4>
+              </div>
+            </div>
+            <div id="ultimosGastos" class="list"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="registro" class="section">
+        <div class="section__heading">
+          <div>
+            <p class="eyebrow">Captura rapida</p>
+            <h3>Registrar gasto</h3>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <form class="expense-form" id="expenseForm">
+            <label>
+              <span>Monto</span>
+              <input type="number" id="montoInput" placeholder="Ej. 12500" required>
+            </label>
+            <label>
+              <span>Categoria</span>
+              <select id="categoriaSelect" required></select>
+            </label>
+            <label>
+              <span>Concepto</span>
+              <input type="text" id="conceptoInput" placeholder="Ej. Almuerzo" required>
+            </label>
+            <label>
+              <span>Fecha</span>
+              <input type="date" id="fechaInput" required>
+            </label>
+            <label>
+              <span>Metodo de pago</span>
+              <select id="metodoPagoInput">
+                <option>Efectivo</option>
+                <option>Tarjeta</option>
+                <option>Transferencia</option>
+              </select>
+            </label>
+            <label class="full-width">
+              <span>Adjuntar factura</span>
+              <input type="file" id="facturaInput" accept=".pdf,image/*">
+            </label>
+            <label class="full-width">
+              <span>Observaciones</span>
+              <textarea rows="4" id="observacionesInput" placeholder="Notas opcionales"></textarea>
+            </label>
+            <div class="form-actions full-width">
+              <button type="button" class="secondary-button">Guardar y nuevo</button>
+              <button type="submit" class="primary-button" id="guardarButton">Guardar gasto</button>
+            </div>
+            <p id="formMessage" class="form-message full-width" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div class="form-card form-card--secondary">
+          <div class="panel__header">
+            <div>
+              <p class="eyebrow">Personalizacion</p>
+              <h4>Crear categoria</h4>
+            </div>
+          </div>
+          <form class="category-form" id="categoryForm">
+            <label>
+              <span>Nombre de la categoria</span>
+              <input type="text" id="categoriaNombreInput" placeholder="Ej. Mascotas" required>
+            </label>
+            <label>
+              <span>Icono</span>
+              <input type="text" id="categoriaIconoInput" placeholder="Ej. pets">
+            </label>
+            <div class="form-actions">
+              <button type="submit" class="primary-button" id="guardarCategoriaButton">Crear categoria</button>
+            </div>
+            <p id="categoryMessage" class="form-message" aria-live="polite"></p>
+          </form>
+          <div id="categoriasList" class="category-list"></div>
+        </div>
+      </section>
+
+      <section id="historial" class="section">
+        <div class="section__heading">
+          <div>
+            <p class="eyebrow">Consulta</p>
+            <h3>Historial de gastos</h3>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="toolbar">
+            <input type="search" id="historySearch" placeholder="Buscar por concepto o categoria">
+            <div class="toolbar__filters">
+              <button class="chip chip--active">Mes actual</button>
+              <button class="chip">Quincena</button>
+              <button class="chip">Servicios</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Concepto</th>
+                  <th>Categoria</th>
+                  <th>Monto</th>
+                  <th>Factura</th>
+                </tr>
+              </thead>
+              <tbody id="historialTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="pagos" class="section">
+        <div class="section__heading">
+          <div>
+            <p class="eyebrow">Obligaciones fijas</p>
+            <h3>Calendario de pagos</h3>
+          </div>
+        </div>
+
+        <div class="cards-grid" id="pagosGrid"></div>
+      </section>
+
+      <section id="metas" class="section">
+        <div class="section__heading">
+          <div>
+            <p class="eyebrow">Proyectos a futuro</p>
+            <h3>Metas de ahorro</h3>
+          </div>
+          <span class="pill">Ahorra para cumplir tus sueños</span>
+        </div>
+
+        <div class="form-card">
+          <form class="expense-form" id="metaForm">
+            <label>
+              <span>Nombre de la meta</span>
+              <input type="text" id="metaNombreInput" placeholder="Ej. Viaje a la playa" required>
+            </label>
+            <label>
+              <span>Monto objetivo</span>
+              <input type="number" id="metaMontoInput" placeholder="Ej. 500000" min="1" required>
+            </label>
+            <label>
+              <span>Fecha límite</span>
+              <input type="date" id="metaFechaInput" required>
+            </label>
+            <label>
+              <span>Categoría</span>
+              <select id="metaCategoriaInput">
+                <option>Viajes</option>
+                <option>Tecnología</option>
+                <option>Educación</option>
+                <option>Vivienda</option>
+                <option>Vehículo</option>
+                <option>Salud</option>
+                <option>Otros</option>
+              </select>
+            </label>
+            <label class="full-width">
+              <span>Descripción (opcional)</span>
+              <textarea rows="3" id="metaDescripcionInput" placeholder="Detalles sobre tu meta..."></textarea>
+            </label>
+            <div class="form-actions full-width">
+              <button type="submit" class="primary-button" id="guardarMetaButton">Crear meta</button>
+            </div>
+            <p id="metaFormMessage" class="form-message full-width" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div class="stats-grid" style="margin-top: 24px;">
+          <article class="stat-card">
+            <p>Total metas activas</p>
+            <strong id="metasActivas">0</strong>
+            <span>Proyectos en curso</span>
+          </article>
+          <article class="stat-card">
+            <p>Ahorro total</p>
+            <strong id="ahorroTotal">$0</strong>
+            <span>Acumulado en todas las metas</span>
+          </article>
+          <article class="stat-card stat-card--alert">
+            <p>Monto total objetivos</p>
+            <strong id="montoTotalMetas">$0</strong>
+            <span>Suma de todos los objetivos</span>
+          </article>
+          <article class="stat-card">
+            <p>% de avance general</p>
+            <strong id="avanceGeneral">0%</strong>
+            <span>Progreso global de ahorro</span>
+          </article>
+        </div>
+
+        <div class="section__heading" style="margin-top: 24px;">
+          <div>
+            <p class="eyebrow">Tus metas</p>
+            <h4>Progreso detallado</h4>
+          </div>
+        </div>
+
+        <div class="cards-grid" id="metasGrid"></div>
+      </section>
+
+      <section id="tablas" class="section">
+        <div class="section__heading">
+          <div>
+            <p class="eyebrow">Base de datos</p>
+            <h3>Estructura de tablas para Google Sheets</h3>
+          </div>
+        </div>
+
+        <div class="sheet-grid">
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Hoja 1</p>
+                <h4>Usuarios</h4>
+              </div>
+            </div>
+            <div class="code-block">
+              ID_Usuario | Nombre_Completo | Correo | Fecha_Creacion | Activo
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Hoja 2</p>
+                <h4>Gastos</h4>
+              </div>
+            </div>
+            <div class="code-block">
+              ID_Gasto | ID_Usuario | Fecha | Concepto | Categoria | Monto | Ruta_Factura | Metodo_Pago | Observaciones | Mes_Anio | Quincena
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Hoja 3</p>
+                <h4>Calendario_Pagos</h4>
+              </div>
+            </div>
+            <div class="code-block">
+              ID_Pago | ID_Usuario | Nombre_Servicio | Categoria | Dia_Vence | Monto_Estimado | Estado | Ultimo_Pago_Fecha | Recordatorio_Activo
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Hoja 4</p>
+                <h4>Categorias</h4>
+              </div>
+            </div>
+            <div class="code-block">
+              ID_Categoria | Nombre_Categoria | Icono | Activa
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Hoja 5</p>
+                <h4>Metas_Ahorro</h4>
+              </div>
+            </div>
+            <div class="code-block">
+              ID_Meta | ID_Usuario | Nombre_Meta | Categoria | Monto_Objetivo | Monto_Ahorrado | Fecha_Limite | Descripcion | Estado | Fecha_Creacion
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Hoja 6</p>
+                <h4>Aportes_Metas</h4>
+              </div>
+            </div>
+            <div class="code-block">
+              ID_Aporte | ID_Meta | ID_Usuario | Monto_Aporte | Fecha_Aporte | Notas
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

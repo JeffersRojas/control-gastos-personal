@@ -13,7 +13,7 @@ const USUARIOS = {
   }
 };
 
-const demoCategoriasBase = [
+const categoriasBase = [
   { id: "CAT001", nombre: "Alimentacion", icono: "restaurant", activa: true },
   { id: "CAT002", nombre: "Servicios", icono: "bolt", activa: true },
   { id: "CAT003", nombre: "Ocio", icono: "mood", activa: true },
@@ -21,222 +21,7 @@ const demoCategoriasBase = [
   { id: "CAT005", nombre: "Salud", icono: "favorite", activa: true }
 ];
 
-const demoGastosJefferson = [
-  {
-    id: "G001",
-    usuario: "jefferson",
-    fecha: "2026-08-20",
-    concepto: "Almuerzo oficina",
-    categoria: "Alimentacion",
-    monto: 18500,
-    factura: "Sin adjunto",
-    metodo: "Tarjeta",
-    observaciones: ""
-  },
-  {
-    id: "G002",
-    usuario: "jefferson",
-    fecha: "2026-08-18",
-    concepto: "Pago de internet",
-    categoria: "Servicios",
-    monto: 82000,
-    factura: "PDF",
-    metodo: "Transferencia",
-    observaciones: ""
-  },
-  {
-    id: "G003",
-    usuario: "jefferson",
-    fecha: "2026-08-15",
-    concepto: "Uber a la universidad",
-    categoria: "Transporte",
-    monto: 14000,
-    factura: "Sin adjunto",
-    metodo: "Efectivo",
-    observaciones: ""
-  },
-  {
-    id: "G004",
-    usuario: "jefferson",
-    fecha: "2026-08-10",
-    concepto: "Cine con amigos",
-    categoria: "Ocio",
-    monto: 26000,
-    factura: "Sin adjunto",
-    metodo: "Tarjeta",
-    observaciones: ""
-  },
-  {
-    id: "G005",
-    usuario: "jefferson",
-    fecha: "2026-08-05",
-    concepto: "Farmacia - vitaminas",
-    categoria: "Salud",
-    monto: 33000,
-    factura: "Foto",
-    metodo: "Tarjeta",
-    observaciones: ""
-  }
-];
-
-const demoGastosJuliana = [
-  {
-    id: "G010",
-    usuario: "juliana",
-    fecha: "2026-08-21",
-    concepto: "Desayuno panadería",
-    categoria: "Alimentacion",
-    monto: 9500,
-    factura: "Sin adjunto",
-    metodo: "Efectivo",
-    observaciones: ""
-  },
-  {
-    id: "G011",
-    usuario: "juliana",
-    fecha: "2026-08-19",
-    concepto: "Pago arriendo",
-    categoria: "Servicios",
-    monto: 450000,
-    factura: "PDF",
-    metodo: "Transferencia",
-    observaciones: ""
-  },
-  {
-    id: "G012",
-    usuario: "juliana",
-    fecha: "2026-08-16",
-    concepto: "TransMilenio",
-    categoria: "Transporte",
-    monto: 2800,
-    factura: "Sin adjunto",
-    metodo: "Tarjeta",
-    observaciones: ""
-  },
-  {
-    id: "G013",
-    usuario: "juliana",
-    fecha: "2026-08-12",
-    concepto: "Yoga y meditación",
-    categoria: "Salud",
-    monto: 45000,
-    factura: "Sin adjunto",
-    metodo: "Transferencia",
-    observaciones: ""
-  },
-  {
-    id: "G014",
-    usuario: "juliana",
-    fecha: "2026-08-08",
-    concepto: "Cena restaurante",
-    categoria: "Ocio",
-    monto: 58000,
-    factura: "Foto",
-    metodo: "Tarjeta",
-    observaciones: "Cena romántica"
-  }
-];
-
-const demoPagosJefferson = [
-  { id: "P001", usuario: "jefferson", servicio: "Energía", categoria: "Servicios", diaVence: 15, montoEstimado: 95000, estado: "Pendiente" },
-  { id: "P002", usuario: "jefferson", servicio: "Internet", categoria: "Servicios", diaVence: 18, montoEstimado: 82000, estado: "Pendiente" },
-  { id: "P003", usuario: "jefferson", servicio: "Spotify + Netflix", categoria: "Ocio", diaVence: 30, montoEstimado: 42000, estado: "Pagado" },
-  { id: "P004", usuario: "jefferson", servicio: "Matrícula universidad", categoria: "Educación", diaVence: 25, montoEstimado: 850000, estado: "Pendiente" }
-];
-
-const demoPagosJuliana = [
-  { id: "P010", usuario: "juliana", servicio: "Arriendo", categoria: "Vivienda", diaVence: 5, montoEstimado: 450000, estado: "Pagado" },
-  { id: "P011", usuario: "juliana", servicio: "Agua", categoria: "Servicios", diaVence: 20, montoEstimado: 28000, estado: "Pendiente" },
-  { id: "P012", usuario: "juliana", servicio: "Celular prepago", categoria: "Servicios", diaVence: 10, montoEstimado: 30000, estado: "Pagado" },
-  { id: "P013", usuario: "juliana", servicio: "Gimnasio", categoria: "Salud", diaVence: 1, montoEstimado: 80000, estado: "Pendiente" }
-];
-
-const hoy = new Date();
-const dentro3Meses = new Date(hoy.getFullYear(), hoy.getMonth() + 3, hoy.getDate()).toISOString().slice(0, 10);
-const dentro6Meses = new Date(hoy.getFullYear(), hoy.getMonth() + 6, hoy.getDate()).toISOString().slice(0, 10);
-const dentro2Meses = new Date(hoy.getFullYear(), hoy.getMonth() + 2, 15).toISOString().slice(0, 10);
-const dentro5Meses = new Date(hoy.getFullYear(), hoy.getMonth() + 5, 10).toISOString().slice(0, 10);
-const proximoMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 28).toISOString().slice(0, 10);
-
-const demoMetasJefferson = [
-  {
-    id: "M001",
-    usuario: "jefferson",
-    nombre: "Laptop nueva para estudio",
-    categoria: "Tecnología",
-    montoObjetivo: 3800000,
-    montoAhorrado: 1250000,
-    fechaLimite: dentro3Meses,
-    descripcion: "Portátil con buena tarjeta gráfica para proyectos universitarios.",
-    estado: "Activa",
-    fechaCreacion: "2026-06-01"
-  },
-  {
-    id: "M002",
-    usuario: "jefferson",
-    nombre: "Viaje a San Andrés",
-    categoria: "Viajes",
-    montoObjetivo: 2500000,
-    montoAhorrado: 480000,
-    fechaLimite: dentro6Meses,
-    descripcion: "Vacaciones de fin de año con la familia.",
-    estado: "Activa",
-    fechaCreacion: "2026-07-10"
-  },
-  {
-    id: "M003",
-    usuario: "jefferson",
-    nombre: "Curso certificación seguridad",
-    categoria: "Educación",
-    montoObjetivo: 650000,
-    montoAhorrado: 390000,
-    fechaLimite: proximoMes,
-    descripcion: "Certificación CEH para perfil profesional.",
-    estado: "Activa",
-    fechaCreacion: "2026-07-20"
-  }
-];
-
-const demoMetasJuliana = [
-  {
-    id: "M010",
-    usuario: "juliana",
-    nombre: "Apartamento propio",
-    categoria: "Vivienda",
-    montoObjetivo: 15000000,
-    montoAhorrado: 4200000,
-    fechaLimite: dentro6Meses,
-    descripcion: "Cuota inicial para apartamento en el norte.",
-    estado: "Activa",
-    fechaCreacion: "2026-05-01"
-  },
-  {
-    id: "M011",
-    usuario: "juliana",
-    nombre: "Carro nuevo",
-    categoria: "Vehículo",
-    montoObjetivo: 8000000,
-    montoAhorrado: 950000,
-    fechaLimite: dentro5Meses,
-    descripcion: "Cuota inicial para vehículo familiar.",
-    estado: "Activa",
-    fechaCreacion: "2026-06-15"
-  },
-  {
-    id: "M012",
-    usuario: "juliana",
-    nombre: "Maestría en psicología",
-    categoria: "Educación",
-    montoObjetivo: 3200000,
-    montoAhorrado: 2100000,
-    fechaLimite: dentro2Meses,
-    descripcion: "Inscripción y primer semestre.",
-    estado: "Activa",
-    fechaCreacion: "2026-04-20"
-  }
-];
-
-const STORAGE_KEY = "controlGastosApp_v1";
+const STORAGE_KEY = "controlGastosApp_v2";
 
 function loadFromStorage() {
   try {
@@ -260,16 +45,16 @@ function buildDefaultData() {
   return {
     currentUser: "jefferson",
     jefferson: {
-      categorias: [...demoCategoriasBase],
-      gastos: [...demoGastosJefferson],
-      pagos: [...demoPagosJefferson],
-      metas: [...demoMetasJefferson]
+      categorias: [...categoriasBase],
+      gastos: [],
+      pagos: [],
+      metas: []
     },
     juliana: {
-      categorias: [...demoCategoriasBase, { id: "CAT006", nombre: "Belleza", icono: "face", activa: true }],
-      gastos: [...demoGastosJuliana],
-      pagos: [...demoPagosJuliana],
-      metas: [...demoMetasJuliana]
+      categorias: [...categoriasBase],
+      gastos: [],
+      pagos: [],
+      metas: []
     }
   };
 }
@@ -293,7 +78,7 @@ const state = {
   set pagos(v) { currentUserData().pagos = v; saveState(); },
   get metas() { return currentUserData().metas; },
   set metas(v) { currentUserData().metas = v; saveState(); },
-  source: "demo"
+  source: "local"
 };
 
 const elements = {
@@ -803,9 +588,9 @@ async function submitExpense(expense) {
     const list = [...state.gastos];
     list.unshift(expense);
     state.gastos = list;
-    state.source = "demo";
+    state.source = "local";
     renderAll();
-    setFormMessage("Gasto agregado correctamente (modo local).", "success");
+    setFormMessage("Gasto guardado correctamente en este navegador.", "success");
     return;
   }
   const response = await fetch(apiBaseUrl, {
@@ -831,7 +616,7 @@ async function submitCategory(category) {
     state.categorias = list;
     renderAll();
     elements.categoriaSelect.value = category.nombre;
-    setCategoryMessage("Categoria creada (modo local).", "success");
+    setCategoryMessage("Categoria guardada correctamente en este navegador.", "success");
     return;
   }
   const response = await fetch(apiBaseUrl, {
@@ -1039,9 +824,9 @@ async function initializeApp() {
     saveState();
     setConnectionStatus("Conectado con Google Sheets", "success");
   } catch (error) {
-    setConnectionStatus("Modo demo local activo", "warning");
+    setConnectionStatus("Modo local activo (sin conexión a Google Sheets)", "warning");
     if (!state.gastos.length) {
-      setFormMessage("Tus datos se guardan en este navegador. Configura config.js para Google Sheets.", "info");
+      setFormMessage("Los datos se guardan temporalmente en este navegador. Verifica la URL en config.js para conectar con Google Sheets.", "info");
     }
   }
   renderAll();

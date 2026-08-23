@@ -681,12 +681,14 @@ function createCategoryFromForm() {
 }
 
 function openSidebar() {
+  document.body.style.overflow = "hidden";
   elements.sidebar.classList.add("is-open");
   elements.sidebarOverlay.classList.add("is-visible");
   elements.menuToggle.classList.add("is-open");
 }
 
 function closeSidebar() {
+  document.body.style.overflow = "";
   elements.sidebar.classList.remove("is-open");
   elements.sidebarOverlay.classList.remove("is-visible");
   elements.menuToggle.classList.remove("is-open");
@@ -783,10 +785,40 @@ function attachEvents() {
   elements.sidebarOverlay.addEventListener("click", closeSidebar);
 
   elements.navLinks.forEach((link) => {
-    link.addEventListener("click", () => {
-      if (window.innerWidth <= 1100) setTimeout(closeSidebar, 150);
+    link.addEventListener("click", (e) => {
+      if (window.innerWidth <= 1100) {
+        e.preventDefault();
+        const target = link.getAttribute("href");
+        closeSidebar();
+        setTimeout(() => {
+          window.location.hash = target;
+        }, 300);
+      }
     });
   });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && elements.sidebar.classList.contains("is-open")) {
+      closeSidebar();
+    }
+  });
+
+  if ("ontouchstart" in window) {
+    elements.content = elements.content || document.querySelector(".content");
+    if (elements.content) {
+      elements.content.addEventListener("click", (e) => {
+        if (
+          window.innerWidth <= 1100 &&
+          elements.sidebar.classList.contains("is-open") &&
+          !elements.sidebar.contains(e.target) &&
+          e.target !== elements.menuToggle &&
+          !elements.menuToggle.contains(e.target)
+        ) {
+          closeSidebar();
+        }
+      });
+    }
+  }
 
   window.addEventListener("hashchange", updateActiveNavLink);
   window.addEventListener("resize", () => {

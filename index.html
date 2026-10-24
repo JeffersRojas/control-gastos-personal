@@ -3,14 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control de Gastos</title>
+  <title>Control de Gastos | Panel financiero</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="app-shell">
+  <!-- ============ PANTALLA DE INGRESO ============ -->
+  <div class="login" id="loginScreen">
+    <div class="login__panel">
+      <div class="brand brand--login">
+        <div class="brand__badge">CG</div>
+        <div>
+          <p class="eyebrow">Panel financiero</p>
+          <h1>Control de Gastos</h1>
+        </div>
+      </div>
+
+      <h2 class="login__title">Inicia sesión</h2>
+      <p class="login__text">Ingresa con el correo registrado en tu cuenta. No necesitas contraseña.</p>
+
+      <form class="login__form" id="loginForm">
+        <label>
+          <span>Correo electrónico</span>
+          <input type="email" id="loginEmail" placeholder="tu.correo@dominio.com" autocomplete="email" required>
+        </label>
+        <button type="submit" class="primary-button primary-button--block" id="loginButton">Ingresar al panel</button>
+        <p id="loginMessage" class="form-message" aria-live="polite"></p>
+      </form>
+
+      <p class="login__hint">
+        El correo debe existir en la hoja <strong>Usuarios</strong> de la base de datos y tener <strong>Activo</strong> en TRUE.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ APLICACIÓN ============ -->
+  <div class="app-shell" id="appShell" hidden>
     <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">
       <span></span>
       <span></span>
@@ -22,67 +52,68 @@
       <div class="brand">
         <div class="brand__badge">CG</div>
         <div>
-          <p class="eyebrow">Proyecto personal</p>
+          <p class="eyebrow">Panel financiero</p>
           <h1>Control de Gastos</h1>
         </div>
       </div>
 
-      <div class="user-selector">
-        <label class="user-selector__label">Usuario activo</label>
-        <select id="usuarioSelect" class="user-selector__select">
-          <option value="jefferson">Jefferson Rojas</option>
-          <option value="juliana">Juliana González</option>
-        </select>
-        <div class="user-selector__badge" id="usuarioBadge">
-          <span class="user-avatar user-avatar--jefferson">JR</span>
-          <span id="usuarioNombre">Jefferson Rojas</span>
+      <div class="profile-card">
+        <span class="user-avatar" id="sidebarAvatar">--</span>
+        <div class="profile-card__info">
+          <p class="profile-card__name" id="sidebarUserName">Usuario</p>
+          <p class="profile-card__mail" id="sidebarUserMail">correo@dominio.com</p>
         </div>
       </div>
 
-      <nav class="nav">
-        <a href="#dashboard" class="nav__link nav__link--active" data-nav="dashboard">Inicio</a>
-        <a href="#registro" class="nav__link" data-nav="registro">Registrar</a>
-        <a href="#historial" class="nav__link" data-nav="historial">Historial</a>
-        <a href="#pagos" class="nav__link" data-nav="pagos">Pagos</a>
-        <a href="#metas" class="nav__link" data-nav="metas">Metas y ahorros</a>
-        <a href="#tablas" class="nav__link" data-nav="tablas">Tablas Sheet</a>
-      </nav>
+      <nav class="nav" id="navLinks"></nav>
 
       <section class="sidebar-card">
-        <p class="sidebar-card__title">Enfoque de la app</p>
-        <p class="sidebar-card__text">Registro rapido, control quincenal, metas de ahorro y acceso simple desde movil o web.</p>
+        <p class="sidebar-card__title">Acceso restringido</p>
+        <p class="sidebar-card__text">Solo verás los módulos autorizados para tu perfil en la hoja <strong>Menu</strong>.</p>
       </section>
+
+      <button type="button" class="ghost-button ghost-button--light" id="logoutButton">Cerrar sesión</button>
     </aside>
 
     <main class="content">
       <header class="topbar">
-        <div>
-          <p class="eyebrow">UX/UI en HTML + CSS</p>
-          <h2>Control de Gastos</h2>
+        <div class="topbar__title">
+          <p class="eyebrow" id="currentSectionEyebrow">Panel general</p>
+          <h2 id="currentSectionTitle">Resumen financiero</h2>
           <p id="connectionStatus" class="topbar__status">Listo para usar</p>
         </div>
         <div class="topbar__actions">
-          <div class="topbar-user" id="topbarUser">
-            <span class="user-avatar user-avatar--jefferson" id="topbarAvatar">JR</span>
-            <div>
-              <p class="topbar-user__name" id="topbarUserName">Jefferson Rojas</p>
-              <p class="topbar-user__role">Sesión activa</p>
-            </div>
-          </div>
-          <a href="#registro" class="primary-button">Nuevo gasto</a>
+          <span class="pill" id="topbarUserPill">Sesión activa</span>
+          <button type="button" class="secondary-button" id="quickExpenseButton">Registrar gasto</button>
         </div>
       </header>
 
+      <!-- ---------- PANEL GENERAL ---------- -->
       <section id="dashboard" class="section">
         <div class="section__heading">
           <div>
             <p class="eyebrow">Resumen</p>
-            <h3>Dashboard del periodo actual</h3>
+            <h3>Indicadores del periodo actual</h3>
           </div>
-          <span class="pill">Sincronizable con Google Sheets</span>
+          <span class="pill">Sincronizado con Google Sheets</span>
         </div>
 
         <div class="stats-grid">
+          <article class="stat-card stat-card--income">
+            <p>Ingresos del mes</p>
+            <strong id="ingresoMes">$0</strong>
+            <span>Pagos recibidos este mes</span>
+          </article>
+          <article class="stat-card stat-card--expense">
+            <p>Gastos del mes</p>
+            <strong id="gastoMes">$0</strong>
+            <span>Total acumulado del mes</span>
+          </article>
+          <article class="stat-card stat-card--balance">
+            <p>Saldo del mes</p>
+            <strong id="saldoMes">$0</strong>
+            <span>Ingresos menos gastos</span>
+          </article>
           <article class="stat-card">
             <p>Gasto de hoy</p>
             <strong id="gastoHoy">$0</strong>
@@ -93,25 +124,20 @@
             <strong id="gastoQuincena">$0</strong>
             <span>Control de la quincena actual</span>
           </article>
-          <article class="stat-card">
-            <p>Gasto mensual</p>
-            <strong id="gastoMes">$0</strong>
-            <span>Total acumulado del mes</span>
-          </article>
           <article class="stat-card stat-card--alert">
-            <p>Pagos pendientes</p>
+            <p>Pagos fijos pendientes</p>
             <strong id="pagosPendientes">$0</strong>
             <span>Obligaciones por cubrir</span>
           </article>
-          <article class="stat-card" style="background: linear-gradient(180deg, #eef8ff 0%, #fff 100%);">
-            <p>Ahorro metas</p>
+          <article class="stat-card">
+            <p>Ahorro en metas</p>
             <strong id="dashboardAhorro">$0</strong>
             <span>Acumulado en proyectos</span>
           </article>
           <article class="stat-card">
-            <p>Metas en curso</p>
+            <p>Metas activas</p>
             <strong id="dashboardMetas">0</strong>
-            <span>Proyectos a futuro activos</span>
+            <span>Proyectos a futuro en curso</span>
           </article>
         </div>
 
@@ -119,8 +145,8 @@
           <article class="panel panel--chart">
             <div class="panel__header">
               <div>
-                <p class="eyebrow">Categorias</p>
-                <h4>Distribucion de gastos</h4>
+                <p class="eyebrow">Categorías</p>
+                <h4>Distribución de gastos</h4>
               </div>
             </div>
             <div id="categoriaChart" class="chart-list"></div>
@@ -129,7 +155,7 @@
           <article class="panel">
             <div class="panel__header">
               <div>
-                <p class="eyebrow">Ultimos movimientos</p>
+                <p class="eyebrow">Últimos movimientos</p>
                 <h4>Actividad reciente</h4>
               </div>
             </div>
@@ -138,10 +164,11 @@
         </div>
       </section>
 
+      <!-- ---------- REGISTRAR GASTO ---------- -->
       <section id="registro" class="section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">Captura rapida</p>
+            <p class="eyebrow">Captura rápida</p>
             <h3>Registrar gasto</h3>
           </div>
         </div>
@@ -153,7 +180,7 @@
               <input type="number" id="montoInput" placeholder="Ej. 12500" required>
             </label>
             <label>
-              <span>Categoria</span>
+              <span>Categoría</span>
               <select id="categoriaSelect" required></select>
             </label>
             <label>
@@ -165,7 +192,7 @@
               <input type="date" id="fechaInput" required>
             </label>
             <label>
-              <span>Metodo de pago</span>
+              <span>Método de pago</span>
               <select id="metodoPagoInput">
                 <option>Efectivo</option>
                 <option>Tarjeta</option>
@@ -181,7 +208,6 @@
               <textarea rows="4" id="observacionesInput" placeholder="Notas opcionales"></textarea>
             </label>
             <div class="form-actions full-width">
-              <button type="button" class="secondary-button">Guardar y nuevo</button>
               <button type="submit" class="primary-button" id="guardarButton">Guardar gasto</button>
             </div>
             <p id="formMessage" class="form-message full-width" aria-live="polite"></p>
@@ -191,13 +217,13 @@
         <div class="form-card form-card--secondary">
           <div class="panel__header">
             <div>
-              <p class="eyebrow">Personalizacion</p>
-              <h4>Crear categoria</h4>
+              <p class="eyebrow">Personalización</p>
+              <h4>Crear categoría</h4>
             </div>
           </div>
           <form class="category-form" id="categoryForm">
             <label>
-              <span>Nombre de la categoria</span>
+              <span>Nombre de la categoría</span>
               <input type="text" id="categoriaNombreInput" placeholder="Ej. Mascotas" required>
             </label>
             <label>
@@ -205,7 +231,7 @@
               <input type="text" id="categoriaIconoInput" placeholder="Ej. pets">
             </label>
             <div class="form-actions">
-              <button type="submit" class="primary-button" id="guardarCategoriaButton">Crear categoria</button>
+              <button type="submit" class="primary-button" id="guardarCategoriaButton">Crear categoría</button>
             </div>
             <p id="categoryMessage" class="form-message" aria-live="polite"></p>
           </form>
@@ -213,6 +239,7 @@
         </div>
       </section>
 
+      <!-- ---------- HISTORIAL ---------- -->
       <section id="historial" class="section">
         <div class="section__heading">
           <div>
@@ -223,12 +250,7 @@
 
         <div class="panel">
           <div class="toolbar">
-            <input type="search" id="historySearch" placeholder="Buscar por concepto o categoria">
-            <div class="toolbar__filters">
-              <button class="chip chip--active">Mes actual</button>
-              <button class="chip">Quincena</button>
-              <button class="chip">Servicios</button>
-            </div>
+            <input type="search" id="historySearch" placeholder="Buscar por concepto, categoría o método">
           </div>
 
           <div class="table-wrapper">
@@ -237,7 +259,7 @@
                 <tr>
                   <th>Fecha</th>
                   <th>Concepto</th>
-                  <th>Categoria</th>
+                  <th>Categoría</th>
                   <th>Monto</th>
                   <th>Factura</th>
                 </tr>
@@ -248,24 +270,188 @@
         </div>
       </section>
 
-      <section id="pagos" class="section">
+      <!-- ---------- INGRESOS Y GASTOS FIJOS ---------- -->
+      <section id="movimientos" class="section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">Obligaciones fijas</p>
-            <h3>Calendario de pagos</h3>
+            <p class="eyebrow">Flujo de dinero</p>
+            <h3>Ingresos y gastos fijos</h3>
+          </div>
+          <span class="pill">Control de lo que entra y lo que se va</span>
+        </div>
+
+        <div class="tabs" id="movimientosTabs" role="tablist">
+          <button type="button" class="tab tab--active" data-tab="ingresos" role="tab">Ingresos recibidos</button>
+          <button type="button" class="tab" data-tab="pagos" role="tab">Gastos fijos</button>
+        </div>
+
+        <!-- Pestaña: ingresos -->
+        <div class="tab-panel is-active" id="tab-ingresos">
+          <div class="form-card">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Nuevo registro</p>
+                <h4>Registrar un pago recibido</h4>
+              </div>
+            </div>
+            <form class="expense-form" id="ingresoForm">
+              <label>
+                <span>Fecha en que te pagaron</span>
+                <input type="date" id="ingresoFechaInput" required>
+              </label>
+              <label>
+                <span>Monto recibido</span>
+                <input type="number" id="ingresoMontoInput" min="1" placeholder="Ej. 1500000" required>
+              </label>
+              <label>
+                <span>Quién te pagó (fuente)</span>
+                <input type="text" id="ingresoFuenteInput" placeholder="Ej. Empresa, cliente, arriendo" required>
+              </label>
+              <label>
+                <span>Categoría</span>
+                <select id="ingresoCategoriaInput">
+                  <option>Salario</option>
+                  <option>Honorarios</option>
+                  <option>Freelance</option>
+                  <option>Ventas</option>
+                  <option>Arriendo</option>
+                  <option>Reembolso</option>
+                  <option>Otros</option>
+                </select>
+              </label>
+              <label>
+                <span>Método de recepción</span>
+                <select id="ingresoMetodoInput">
+                  <option>Transferencia</option>
+                  <option>Efectivo</option>
+                  <option>Tarjeta</option>
+                  <option>Nequi / Daviplata</option>
+                </select>
+              </label>
+              <label class="full-width">
+                <span>Observaciones</span>
+                <input type="text" id="ingresoObservacionesInput" placeholder="Notas opcionales">
+              </label>
+              <div class="form-actions full-width">
+                <button type="submit" class="primary-button" id="guardarIngresoButton">Guardar ingreso</button>
+              </div>
+              <p id="ingresoMessage" class="form-message full-width" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card stat-card--income">
+              <p>Ingresos del mes</p>
+              <strong id="ingresoMesCard">$0</strong>
+              <span>Recibido en el mes actual</span>
+            </article>
+            <article class="stat-card">
+              <p>Ingresos totales</p>
+              <strong id="ingresoTotalCard">$0</strong>
+              <span>Histórico registrado</span>
+            </article>
+            <article class="stat-card stat-card--balance">
+              <p>Saldo disponible</p>
+              <strong id="saldoDisponibleCard">$0</strong>
+              <span>Ingresos del mes menos gastos del mes</span>
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Historial</p>
+                <h4>Pagos recibidos</h4>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Fuente</th>
+                    <th>Categoría</th>
+                    <th>Monto</th>
+                    <th>Método</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="ingresosTable"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        <div class="cards-grid" id="pagosGrid"></div>
+        <!-- Pestaña: gastos fijos -->
+        <div class="tab-panel" id="tab-pagos">
+          <div class="form-card">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Nuevo gasto fijo</p>
+                <h4>Programar un pago</h4>
+              </div>
+            </div>
+            <form class="expense-form" id="pagoForm">
+              <label>
+                <span>Servicio o concepto</span>
+                <input type="text" id="pagoServicioInput" placeholder="Ej. Arriendo, Internet, Netflix" required>
+              </label>
+              <label>
+                <span>Monto estimado</span>
+                <input type="number" id="pagoMontoInput" min="1" placeholder="Ej. 95000" required>
+              </label>
+              <label>
+                <span>Categoría</span>
+                <select id="pagoCategoriaInput" required></select>
+              </label>
+              <label>
+                <span>Día de vencimiento</span>
+                <input type="number" id="pagoDiaInput" min="1" max="31" value="1" required>
+              </label>
+              <label>
+                <span>Estado inicial</span>
+                <select id="pagoEstadoInput">
+                  <option>Pendiente</option>
+                  <option>Pagado</option>
+                </select>
+              </label>
+              <div class="form-actions full-width">
+                <button type="submit" class="primary-button" id="guardarPagoButton">Guardar gasto fijo</button>
+              </div>
+              <p id="pagoMessage" class="form-message full-width" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card stat-card--alert">
+              <p>Total fijos pendientes</p>
+              <strong id="pagosPendientesCard">$0</strong>
+              <span>Por cubrir este periodo</span>
+            </article>
+            <article class="stat-card">
+              <p>Total fijos pagados</p>
+              <strong id="pagosPagadosCard">$0</strong>
+              <span>Ya cubiertos</span>
+            </article>
+            <article class="stat-card">
+              <p>Compromiso mensual</p>
+              <strong id="pagosTotalCard">$0</strong>
+              <span>Suma de todos los gastos fijos</span>
+            </article>
+          </div>
+
+          <div class="cards-grid" id="pagosGrid"></div>
+        </div>
       </section>
 
+      <!-- ---------- METAS ---------- -->
       <section id="metas" class="section">
         <div class="section__heading">
           <div>
             <p class="eyebrow">Proyectos a futuro</p>
             <h3>Metas de ahorro</h3>
           </div>
-          <span class="pill">Ahorra para cumplir tus sueños</span>
+          <span class="pill">Ahorra para cumplir tus metas</span>
         </div>
 
         <div class="form-card">
@@ -305,7 +491,7 @@
           </form>
         </div>
 
-        <div class="stats-grid" style="margin-top: 24px;">
+        <div class="stats-grid">
           <article class="stat-card">
             <p>Total metas activas</p>
             <strong id="metasActivas">0</strong>
@@ -328,7 +514,7 @@
           </article>
         </div>
 
-        <div class="section__heading" style="margin-top: 24px;">
+        <div class="section__heading">
           <div>
             <p class="eyebrow">Tus metas</p>
             <h4>Progreso detallado</h4>
@@ -338,11 +524,12 @@
         <div class="cards-grid" id="metasGrid"></div>
       </section>
 
+      <!-- ---------- BASE DE DATOS ---------- -->
       <section id="tablas" class="section">
         <div class="section__heading">
           <div>
             <p class="eyebrow">Base de datos</p>
-            <h3>Estructura de tablas para Google Sheets</h3>
+            <h3>Estructura de hojas en Google Sheets</h3>
           </div>
         </div>
 
@@ -357,12 +544,26 @@
             <div class="code-block">
               ID_Usuario | Nombre_Completo | Correo | Fecha_Creacion | Activo
             </div>
+            <p class="panel__note">El <strong>Correo</strong> es la llave de acceso. Si está vacío, ese usuario no puede entrar.</p>
           </article>
 
           <article class="panel">
             <div class="panel__header">
               <div>
                 <p class="eyebrow">Hoja 2</p>
+                <h4>Menu</h4>
+              </div>
+            </div>
+            <div class="code-block">
+              ID_Opcion | Etiqueta | Seccion | Usuarios | Orden | Activa
+            </div>
+            <p class="panel__note">En <strong>Usuarios</strong> escribe <em>TODOS</em> o los IDs separados por coma (ej. jefferson,juliana).</p>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Hoja 3</p>
                 <h4>Gastos</h4>
               </div>
             </div>
@@ -374,7 +575,19 @@
           <article class="panel">
             <div class="panel__header">
               <div>
-                <p class="eyebrow">Hoja 3</p>
+                <p class="eyebrow">Hoja 4</p>
+                <h4>Ingresos</h4>
+              </div>
+            </div>
+            <div class="code-block">
+              ID_Ingreso | ID_Usuario | Fecha | Fuente | Categoria | Monto | Metodo | Observaciones
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <p class="eyebrow">Hoja 5</p>
                 <h4>Calendario_Pagos</h4>
               </div>
             </div>
@@ -386,7 +599,7 @@
           <article class="panel">
             <div class="panel__header">
               <div>
-                <p class="eyebrow">Hoja 4</p>
+                <p class="eyebrow">Hoja 6</p>
                 <h4>Categorias</h4>
               </div>
             </div>
@@ -398,7 +611,7 @@
           <article class="panel">
             <div class="panel__header">
               <div>
-                <p class="eyebrow">Hoja 5</p>
+                <p class="eyebrow">Hoja 7</p>
                 <h4>Metas_Ahorro</h4>
               </div>
             </div>
@@ -410,7 +623,7 @@
           <article class="panel">
             <div class="panel__header">
               <div>
-                <p class="eyebrow">Hoja 6</p>
+                <p class="eyebrow">Hoja 8</p>
                 <h4>Aportes_Metas</h4>
               </div>
             </div>

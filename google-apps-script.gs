@@ -1,6 +1,8 @@
 const SHEET_NAMES = {
   usuarios: "Usuarios",
+  menu: "Menu",
   gastos: "Gastos",
+  ingresos: "Ingresos",
   pagos: "Calendario_Pagos",
   categorias: "Categorias",
   metas: "Metas_Ahorro",
@@ -17,26 +19,42 @@ const DRIVE_FOLDER_ID = "";
 function doGet(e) {
   const resource = (e && e.parameter && e.parameter.resource) || "bootstrap";
   const usuario = (e && e.parameter && e.parameter.usuario) || "";
+  const correo = (e && e.parameter && e.parameter.correo) || "";
 
   try {
     if (resource === "bootstrap") {
       return jsonOutput({
         usuarios: readTable_(SHEET_NAMES.usuarios),
+        menu: readTable_(SHEET_NAMES.menu),
         categorias: readTable_(SHEET_NAMES.categorias),
         gastos: filterByUser_(readTable_(SHEET_NAMES.gastos), usuario, "ID_Usuario"),
+        ingresos: filterByUser_(readTable_(SHEET_NAMES.ingresos), usuario, "ID_Usuario"),
         pagos: filterByUser_(readTable_(SHEET_NAMES.pagos), usuario, "ID_Usuario"),
         metas: filterByUser_(readTable_(SHEET_NAMES.metas), usuario, "ID_Usuario"),
         aportesMetas: filterByUser_(readTable_(SHEET_NAMES.aportesMetas), usuario, "ID_Usuario")
       });
     }
 
+    if (resource === "login") {
+      return jsonOutput(loginUsuario_(correo));
+    }
+
     if (resource === "usuarios") {
       return jsonOutput({ usuarios: readTable_(SHEET_NAMES.usuarios) });
+    }
+
+    if (resource === "menu") {
+      return jsonOutput({ menu: readTable_(SHEET_NAMES.menu) });
     }
 
     if (resource === "gastos") {
       const data = filterByUser_(readTable_(SHEET_NAMES.gastos), usuario, "ID_Usuario");
       return jsonOutput({ gastos: data });
+    }
+
+    if (resource === "ingresos") {
+      const data = filterByUser_(readTable_(SHEET_NAMES.ingresos), usuario, "ID_Usuario");
+      return jsonOutput({ ingresos: data });
     }
 
     if (resource === "pagos") {
@@ -94,12 +112,54 @@ function doPost(e) {
       });
     }
 
+    if (resource === "ingresos") {
+      const ingreso = createIngreso_(payload.data || {});
+      return jsonOutput({
+        success: true,
+        id: ingreso.ID_Ingreso,
+        message: "Ingreso guardado correctamente"
+      });
+    }
+
     if (resource === "pagos") {
       const pago = createPago_(payload.data || {});
       return jsonOutput({
         success: true,
         id: pago.ID_Pago,
         message: "Pago guardado correctamente"
+      });
+    }
+
+    if (resource === "actualizar_pago") {
+      const pago = actualizarPago_(payload.data || {});
+      return jsonOutput({
+        success: true,
+        pago: pago,
+        message: "Pago actualizado correctamente"
+      });
+    }
+
+    if (resource === "eliminar_pago") {
+      const resultado = eliminarPago_(payload.data || {});
+      return jsonOutput({
+        success: true,
+        message: resultado
+      });
+    }
+
+    if (resource === "eliminar_gasto") {
+      const resultado = eliminarGasto_(payload.data || {});
+      return jsonOutput({
+        success: true,
+        message: resultado
+      });
+    }
+
+    if (resource === "eliminar_ingreso") {
+      const resultado = eliminarIngreso_(payload.data || {});
+      return jsonOutput({
+        success: true,
+        message: resultado
       });
     }
 
@@ -145,10 +205,21 @@ function inicializarHojas_() {
       headers: ["ID_Usuario", "Nombre_Completo", "Correo", "Fecha_Creacion", "Activo"]
     },
     {
+      nombre: SHEET_NAMES.menu,
+      headers: ["ID_Opcion", "Etiqueta", "Seccion", "Usuarios", "Orden", "Activa"]
+    },
+    {
       nombre: SHEET_NAMES.gastos,
       headers: [
         "ID_Gasto", "ID_Usuario", "Fecha", "Concepto", "Categoria", "Monto",
         "Ruta_Factura", "Metodo_Pago", "Observaciones", "Mes_Anio", "Quincena"
+      ]
+    },
+    {
+      nombre: SHEET_NAMES.ingresos,
+      headers: [
+        "ID_Ingreso", "ID_Usuario", "Fecha", "Fuente", "Categoria", "Monto",
+        "Metodo", "Observaciones"
       ]
     },
     {
@@ -188,6 +259,15 @@ function inicializarHojas_() {
     ["juliana", "Juliana González", "", Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd"), true]
   ];
 
+  const menuInicial = [
+    ["MENU_DASHBOARD", "Panel general", "dashboard", "TODOS", 1, true],
+    ["MENU_REGISTRO", "Registrar gasto", "registro", "TODOS", 2, true],
+    ["MENU_HISTORIAL", "Historial", "historial", "TODOS", 3, true],
+    ["MENU_MOVIMIENTOS", "Ingresos y gastos fijos", "movimientos", "TODOS", 4, true],
+    ["MENU_METAS", "Metas de ahorro", "metas", "TODOS", 5, true],
+    ["MENU_TABLAS", "Base de datos", "tablas", "jefferson", 6, true]
+  ];
+
   let creadas = 0;
   hojas.forEach(function(hojaConfig) {
     let hoja = ss.getSheetByName(hojaConfig.nombre);
@@ -211,9 +291,16 @@ function inicializarHojas_() {
         usuariosIniciales.forEach(function(row) { hoja.appendRow(row); });
       }
     }
+
+    if (hojaConfig.nombre === SHEET_NAMES.menu) {
+      const data = hoja.getDataRange().getValues();
+      if (data.length <= 1) {
+        menuInicial.forEach(function(row) { hoja.appendRow(row); });
+      }
+    }
   });
 
-  return "Hojas inicializadas: " + creadas + " creadas. Usuarios y categorías por defecto incluidos.";
+  return "Hojas inicializadas: " + creadas + " creadas. Usuarios, menu y categorias por defecto incluidos.";
 }
 
 function filterByUser_(rows, usuarioId, columnName) {
@@ -248,6 +335,176 @@ function hasData_(row) {
   return row.some(function(cell) {
     return cell !== "" && cell !== null;
   });
+}
+
+function loginUsuario_(correo) {
+  const normalized = String(correo || "").trim().toLowerCase();
+  if (!normalized) {
+    return { success: false, error: "Ingresa tu correo para continuar" };
+  }
+
+  const usuario = readTable_(SHEET_NAMES.usuarios).filter(function(item) {
+    return String(item.Correo || "").trim().toLowerCase() === normalized;
+  })[0];
+
+  if (!usuario) {
+    return {
+      success: false,
+      error: "Ese correo no esta registrado en la hoja Usuarios."
+    };
+  }
+
+  const activo = usuario.Activo === true || String(usuario.Activo).toUpperCase() === "TRUE";
+  if (!activo) {
+    return { success: false, error: "Tu usuario esta inactivo. Contacta al administrador." };
+  }
+
+  return {
+    success: true,
+    usuario: {
+      id: String(usuario.ID_Usuario || "").trim(),
+      nombre: String(usuario.Nombre_Completo || "").trim(),
+      correo: String(usuario.Correo || "").trim()
+    }
+  };
+}
+
+function findRowNumber_(sheet, columnName, value) {
+  const values = sheet.getDataRange().getValues();
+  if (values.length <= 1) return -1;
+
+  const index = values[0].indexOf(columnName);
+  if (index === -1) return -1;
+
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][index]).trim() === String(value).trim()) {
+      return i + 1;
+    }
+  }
+
+  return -1;
+}
+
+function formatSheetDate_(value) {
+  const date = value ? new Date(value) : new Date();
+  if (isNaN(date.getTime())) {
+    return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd");
+  }
+  return Utilities.formatDate(date, Session.getScriptTimeZone(), "yyyy-MM-dd");
+}
+
+function createIngreso_(data) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.ingresos);
+  if (!sheet) {
+    throw new Error("No existe la hoja: " + SHEET_NAMES.ingresos);
+  }
+
+  const ingreso = {
+    ID_Ingreso: data.id || createId_("I"),
+    ID_Usuario: resolveUserId_(data),
+    Fecha: formatSheetDate_(data.fecha),
+    Fuente: String(data.fuente || data.Fuente || "").trim(),
+    Categoria: data.categoria || data.Categoria || "Otros",
+    Monto: Number(data.monto || data.Monto || 0),
+    Metodo: data.metodo || data.Metodo || "",
+    Observaciones: data.observaciones || data.Observaciones || ""
+  };
+
+  if (!ingreso.Fuente) throw new Error("Indica quien te pago o de donde viene el ingreso");
+  if (ingreso.Monto <= 0) throw new Error("El monto del ingreso debe ser mayor a cero");
+
+  sheet.appendRow([
+    ingreso.ID_Ingreso,
+    ingreso.ID_Usuario,
+    ingreso.Fecha,
+    ingreso.Fuente,
+    ingreso.Categoria,
+    ingreso.Monto,
+    ingreso.Metodo,
+    ingreso.Observaciones
+  ]);
+
+  return ingreso;
+}
+
+function actualizarPago_(data) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.pagos);
+  if (!sheet) {
+    throw new Error("No existe la hoja: " + SHEET_NAMES.pagos);
+  }
+
+  const pagoId = String(data.id || data.idPago || data.ID_Pago || "").trim();
+  if (!pagoId) throw new Error("ID_Pago es obligatorio para actualizar");
+
+  const fila = findRowNumber_(sheet, "ID_Pago", pagoId);
+  if (fila === -1) throw new Error("No se encontro el pago con ID: " + pagoId);
+
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0];
+  const actual = values[fila - 1];
+
+  const campos = {
+    Nombre_Servicio: data.servicio !== undefined ? data.servicio : actual[headers.indexOf("Nombre_Servicio")],
+    Categoria: data.categoria !== undefined ? data.categoria : actual[headers.indexOf("Categoria")],
+    Dia_Vence: data.diaVence !== undefined ? Number(data.diaVence) : actual[headers.indexOf("Dia_Vence")],
+    Monto_Estimado: data.montoEstimado !== undefined ? Number(data.montoEstimado) : actual[headers.indexOf("Monto_Estimado")],
+    Estado: data.estado !== undefined ? data.estado : actual[headers.indexOf("Estado")],
+    Ultimo_Pago_Fecha: data.ultimoPago !== undefined ? data.ultimoPago : actual[headers.indexOf("Ultimo_Pago_Fecha")],
+    Recordatorio_Activo: data.recordatorio !== undefined ? data.recordatorio : actual[headers.indexOf("Recordatorio_Activo")]
+  };
+
+  Object.keys(campos).forEach(function(header) {
+    const index = headers.indexOf(header);
+    if (index !== -1) {
+      sheet.getRange(fila, index + 1).setValue(campos[header]);
+    }
+  });
+
+  campos.ID_Pago = pagoId;
+  campos.ID_Usuario = String(actual[headers.indexOf("ID_Usuario")] || "").trim();
+  return campos;
+}
+
+function eliminarPago_(data) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.pagos);
+  if (!sheet) throw new Error("No existe la hoja: " + SHEET_NAMES.pagos);
+
+  const pagoId = String(data.id || data.idPago || data.ID_Pago || "").trim();
+  if (!pagoId) throw new Error("ID_Pago es obligatorio para eliminar");
+
+  const fila = findRowNumber_(sheet, "ID_Pago", pagoId);
+  if (fila === -1) throw new Error("No se encontro el pago con ID: " + pagoId);
+
+  sheet.deleteRow(fila);
+  return "Pago eliminado correctamente";
+}
+
+function eliminarGasto_(data) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.gastos);
+  if (!sheet) throw new Error("No existe la hoja: " + SHEET_NAMES.gastos);
+
+  const gastoId = String(data.id || data.ID_Gasto || "").trim();
+  if (!gastoId) throw new Error("ID_Gasto es obligatorio para eliminar");
+
+  const fila = findRowNumber_(sheet, "ID_Gasto", gastoId);
+  if (fila === -1) throw new Error("No se encontro el gasto con ID: " + gastoId);
+
+  sheet.deleteRow(fila);
+  return "Gasto eliminado correctamente";
+}
+
+function eliminarIngreso_(data) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAMES.ingresos);
+  if (!sheet) throw new Error("No existe la hoja: " + SHEET_NAMES.ingresos);
+
+  const ingresoId = String(data.id || data.ID_Ingreso || "").trim();
+  if (!ingresoId) throw new Error("ID_Ingreso es obligatorio para eliminar");
+
+  const fila = findRowNumber_(sheet, "ID_Ingreso", ingresoId);
+  if (fila === -1) throw new Error("No se encontro el ingreso con ID: " + ingresoId);
+
+  sheet.deleteRow(fila);
+  return "Ingreso eliminado correctamente";
 }
 
 function resolveUserId_(data) {
